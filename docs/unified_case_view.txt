@@ -1,0 +1,25 @@
+===== UNIFIED CASE FILE: Skilling  (one SQL statement, five agents, one CockroachDB) =====
+  [Chronicle] timeline       2001-08-14  Skilling resigns as CEO
+  [Chronicle] timeline       2004-07-08  Lay and Skilling indicted
+  [Chronicle] timeline       2001-02-12  Jeffrey Skilling becomes CEO
+  [Chronicle] timeline       2006-05-25  Lay and Skilling convicted of fraud
+  [ColdCase ] suspicion      score=0.99  Documentary evidence across email threads of structuring off-book enti
+  [GapHunter] missing_doc    R04 [open]  attachment
+  [GapHunter] missing_doc    R05 [open]  off_channel
+  [Witness  ] contradiction  Sold ~$15M of Enron stock in Sept 2001 because of post-9/11 market fear.
+  [Witness  ] contradiction  On resigning (Aug 2001) Enron was in the strongest shape it had ever been in.
+  [Witness  ] contradiction  Characterized Enron's mark-to-market accounting as conservative.
+  [Witness  ] contradiction  Claimed limited knowledge of the Raptor hedging vehicles' problems.
+  [HoldFirewall] litigation hold ACTIVE on 200 responsive docs (SERIALIZABLE-protected)
+
+===== UNIFIED CASE FILE: Fastow  (one SQL statement, five agents, one CockroachDB) =====
+  [Chronicle] timeline       2002-10-31  Andrew Fastow indicted
+  [Chronicle] timeline       1999-10-01  LJM2 partnership formed by CFO Andrew Fastow
+  [Chronicle] timeline       2004-01-14  Andrew Fastow pleads guilty
+  [Chronicle] timeline       2001-10-24  Andrew Fastow ousted as CFO
+  [GapHunter] missing_doc    R01 [open]  attachment
+  [GapHunter] missing_doc    R06 [open]  attachment
+  [GapHunter] missing_doc    R03 [open]  attachment
+  [Witness  ] contradiction  Represented that LJM bore real economic risk on its Enron deals.
+  [Witness  ] contradiction  LJM partnerships were arm's-length and managed to avoid any conflict.
+  [HoldFirewall] litigation hold ACTIVE on 200 responsive docs (SERIALIZABLE-protected)
