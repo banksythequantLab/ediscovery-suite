@@ -115,7 +115,11 @@ Run: `py -3.11 src/prove_ethwall.py`.
 - **CockroachDB tools:** Distributed Vector Indexing (C-SPANN) on 500K+ email
   chunks and SEC filings; Managed MCP Server (judges interrogate the live case
   memory in plain English); ccloud CLI (agent-triggered backups); Agent Skills
-  (schema/ops) — well beyond the 2-tool minimum.
+  (schema/ops) — well beyond the 2-tool minimum. Plus the CockroachDB-native
+  properties no vector store has: **SERIALIZABLE** (Hold Firewall),
+  **row-level security** (ethical walls), and **follower reads**
+  (`AS OF SYSTEM TIME follower_read_timestamp()`) that serve read-heavy
+  dashboard queries from a replica, isolated from the contended write path.
 - **AWS:** S3 (corpus + case snapshots), plus the deployed demo dashboard.
 
 ## Live demo & video
