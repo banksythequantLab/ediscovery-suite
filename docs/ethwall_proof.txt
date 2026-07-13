@@ -1,0 +1,19 @@
+CockroachDB Row-Level Security ethical wall + privilege screen
+4 documents: Matter A (1 responsive, 1 privileged), Matter B (same).
+
+[reviewer_a] (assigned to Matter A) can SELECT 1 row(s):
+    matter A responsive   Matter A - responsive email
+
+[reviewer_b] (assigned to Matter B) can SELECT 1 row(s):
+    matter B responsive   Matter B - responsive email
+
+[privilege_team] (the privilege review team) can SELECT 4 row(s):
+    matter A responsive   Matter A - responsive email
+    matter A PRIVILEGED  Matter A - PRIVILEGED counsel memo
+    matter B responsive   Matter B - responsive email
+    matter B PRIVILEGED  Matter B - PRIVILEGED strategy note
+
+WALL CHECK -- reviewer_a can see any Matter B row: False  (must be False)
+PRIVILEGE  -- reviewer_a can see any privileged row: False  (must be False)
+The database -- not the app -- physically enforces the wall. A cross-matter
+or privileged read returns zero rows, not a filtered-in-code result.

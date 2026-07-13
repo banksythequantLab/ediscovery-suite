@@ -89,6 +89,27 @@ gaphunter.*   artifacts, refs, gaps                            (the missing-doc 
 - **One transaction, one truth.** All updates are SERIALIZABLE, so five agents
   writing the shared memory at once never clobber each other (see Hold Firewall).
 
+## Ethical walls & privilege (row-level security)
+
+The legal industry's top fear about shared AI memory is cross-matter
+contamination and privilege waiver. CockroachDB **row-level security** enforces
+the wall in the *database*, not in application code (`src/prove_ethwall.py`):
+
+```
+[reviewer_a] (Matter A) can SELECT 1 row:  Matter A - responsive email
+[reviewer_b] (Matter B) can SELECT 1 row:  Matter B - responsive email
+[privilege_team]        can SELECT 4 rows: both matters, incl. privileged
+WALL CHECK -- reviewer_a can see any Matter B row: False   (must be False)
+PRIVILEGE  -- reviewer_a can see any privileged row: False (must be False)
+```
+
+RLS policies scoped to roles (`CREATE POLICY wall_a ON documents TO reviewer_a
+USING (matter='A' AND NOT is_privileged)`) mean a reviewer *physically cannot*
+read another matter's rows or a privileged document — the query returns zero
+rows, not a filtered-in-code result. This generalizes Cold Case's sealed-
+conviction RBAC trick into a real, defensible legal-compliance mechanism.
+Run: `py -3.11 src/prove_ethwall.py`.
+
 ## CockroachDB & AWS
 
 - **CockroachDB tools:** Distributed Vector Indexing (C-SPANN) on 500K+ email
