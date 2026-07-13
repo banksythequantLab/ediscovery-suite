@@ -55,6 +55,17 @@ changes the result.
 | **Gap Hunter** | Find what's *missing* | 6/6 gaps @100% precision vs 37% | [GapHunter](https://github.com/banksythequantLab/GapHunter) |
 | **Hold Firewall** | Guard against spoliation (ACID) | 0 held docs destroyed vs ~119 | [HoldFirewall](https://github.com/banksythequantLab/HoldFirewall) |
 
+> **Methodology note (read before scoring the numbers).** Cold Case (4/18 vs 0)
+> and Hold Firewall (0 vs ~119) run the real pipeline end-to-end against the live
+> cluster; Chronicle's timeline is extracted by the live LLM from the SEC
+> filings. **Witness and Gap Hunter are *memory-routing* ablations** — both arms
+> use the *same* (oracle) detector, so the only variable is persistence. They
+> isolate whether memory changes the *outcome*, not detection accuracy; a better
+> detector doesn't change the result. Ground-truth sets are deliberately small,
+> curated, and sealed (18 / 12 / 6 items) — illustrative of the mechanism, not
+> benchmark-scale. Full recall/precision numbers and the honest recall ceiling
+> are in `ColdCase/docs/RECALL_RERUN.md`.
+
 ## How the memory is entwined
 
 One database, `coldcase`, holds every agent's schema:
