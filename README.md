@@ -110,6 +110,32 @@ rows, not a filtered-in-code result. This generalizes Cold Case's sealed-
 conviction RBAC trick into a real, defensible legal-compliance mechanism.
 Run: `py -3.11 src/prove_ethwall.py`.
 
+## Vector + graph fusion retrieval (one SQL statement)
+
+The recall ceiling comes from using the two signals *separately*: C-SPANN vector
+search knows whose email *content* matches a fraud query; the 363K-edge
+communication graph knows who *talks to* them. `ColdCase/src/fusion_retriever.py`
+fuses both in **one SQL statement** — vector-rank a seed, graph-expand over
+`comm_edges`, re-rank by a blended score:
+
+```
+FUSED vector + graph, top finds the pure vector ranked NOWHERE (vsim ~ 0):
+    KITCHEN LOUISE          v=0.00 g=20.1   <- graph-only
+    sara.shackleton@enron   v=0.00 g=19.1   <- graph-only  (LJM in-house counsel)
+    LAVORATO JOHN J         v=0.00 g=16.1   <- graph-only
+    elizabeth.sager@enron   v=0.00 g=12.6   <- graph-only  (LJM in-house counsel)
+```
+
+4 of the fused top-20 are real fraud-network figures that pure vector search
+ranks nowhere — surfaced purely by the graph, in the same engine. This is the
+answer to "why CockroachDB, not a vector store": ANN + graph joins + one query.
+
+**Honest limit:** even fusion does *not* surface Andrew Fastow — he is minimally
+present in *both* email modalities (few sent mails, low-volume edges). His signal
+is in the SEC filings (Chronicle) and off-channel gaps (Gap Hunter). No single
+modality finds him; the **entwined cross-agent memory** does — which is the whole
+thesis. Run: `py -3.11 ColdCase/src/fusion_retriever.py`.
+
 ## CockroachDB & AWS
 
 - **CockroachDB tools:** Distributed Vector Indexing (C-SPANN) on 500K+ email
