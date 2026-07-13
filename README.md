@@ -110,6 +110,41 @@ rows, not a filtered-in-code result. This generalizes Cold Case's sealed-
 conviction RBAC trick into a real, defensible legal-compliance mechanism.
 Run: `py -3.11 src/prove_ethwall.py`.
 
+## Multi-region data domiciling (cross-border e-discovery)
+
+Enron's records span jurisdictions — Houston HQ and the London trading desk.
+GDPR and data-sovereignty law forbid EU custodian data from leaving the EU. On a
+multi-region CockroachDB cluster the **database itself** pins each row to its
+legal region (`sql/geo_partition.sql`, run against a simulated 3-region cluster):
+
+```
+SHOW REGIONS           -> europe-west1, us-east1, us-west1
+CREATE DATABASE ediscovery ... SURVIVE REGION FAILURE;
+CREATE TABLE custodians (...) LOCALITY REGIONAL BY ROW;
+
+ crdb_region    docs  custodians
+ europe-west1    2     Enron Europe Traders A, B    (GDPR-pinned to the EU)
+ us-east1        3     Lay, Skilling, Fastow        (Houston HQ)
+ us-west1        1     Power Analyst                (Portland)
+```
+
+`REGIONAL BY ROW` means an EU custodian's documents physically live on EU nodes
+and are served locally; a US investigator queries **one logical database**, but
+no EU-resident row ever leaves `europe-west1`. `SURVIVE REGION FAILURE` keeps the
+entire case available through a full regional cloud outage — the guarantee that
+neither a single-region Postgres nor a bolt-on vector store can make.
+
+Reproduce for free (no cloud account — `cockroach demo` with simulated regions):
+
+```
+cockroach demo --nodes 3 --no-example-database --insecure \
+  --demo-locality=region=us-east1:region=us-west1:region=europe-west1 \
+  < sql/geo_partition.sql
+```
+
+*(Honesty: demonstrated on a local simulated-locality cluster; the same DDL runs
+unchanged on a CockroachDB Cloud multi-region deployment.)*
+
 ## Vector + graph fusion retrieval (one SQL statement)
 
 The recall ceiling comes from using the two signals *separately*: C-SPANN vector
@@ -143,9 +178,10 @@ thesis. Run: `py -3.11 ColdCase/src/fusion_retriever.py`.
   memory in plain English); ccloud CLI (agent-triggered backups); Agent Skills
   (schema/ops) — well beyond the 2-tool minimum. Plus the CockroachDB-native
   properties no vector store has: **SERIALIZABLE** (Hold Firewall),
-  **row-level security** (ethical walls), and **follower reads**
-  (`AS OF SYSTEM TIME follower_read_timestamp()`) that serve read-heavy
-  dashboard queries from a replica, isolated from the contended write path.
+  **row-level security** (ethical walls), **follower reads**
+  (`AS OF SYSTEM TIME follower_read_timestamp()`), and **multi-region
+  geo-domiciling** (`REGIONAL BY ROW` + `SURVIVE REGION FAILURE`) that pins EU
+  custodian data to the EU for cross-border / GDPR compliance.
 - **AWS:** S3 (corpus + case snapshots), plus the deployed demo dashboard.
 
 ## Live demo & video

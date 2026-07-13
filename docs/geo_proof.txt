@@ -1,0 +1,38 @@
+step
+=== 1. The cluster is multi-region ===
+region	zones	database_names	primary_region_of	secondary_region_of
+europe-west1	{}	{}	{}	{}
+us-east1	{}	{}	{}	{}
+us-west1	{}	{}	{}	{}
+step
+=== 2. A database that SURVIVES a full region outage ===
+CREATE DATABASE
+SET
+step
+=== 3. Custodian docs are REGIONAL BY ROW (row-level domiciling) ===
+CREATE TABLE
+step
+=== 4. Pin each custodian to their legal jurisdiction ===
+INSERT 0 6
+step
+=== 5. Data domiciling: rows live in the region of their jurisdiction ===
+crdb_region	docs	custodians
+europe-west1	2	Enron Europe - Trader A, Enron Europe - Trader B
+us-east1	3	Kenneth Lay, Jeffrey Skilling, Andrew Fastow
+us-west1	1	Enron West - Power Analyst
+step
+=== 6. EU custodians (GDPR) are pinned to europe-west1 ===
+name	office	crdb_region
+Enron Europe - Trader A	London	europe-west1
+Enron Europe - Trader B	London	europe-west1
+step
+=== 7. The multi-region config the database enforces ===
+table_name	create_statement
+custodians	"CREATE TABLE public.custodians (
+	id INT8 NOT NULL,
+	name STRING NULL,
+	office STRING NULL,
+	""role"" STRING NULL,
+	crdb_region public.crdb_internal_region NOT VISIBLE NOT NULL DEFAULT default_to_database_primary_region(gateway_region())::public.crdb_internal_region,
+	CONSTRAINT custodians_pkey PRIMARY KEY (id ASC)
+) LOCALITY REGIONAL BY ROW"
