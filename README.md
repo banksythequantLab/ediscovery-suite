@@ -136,16 +136,42 @@ no EU-resident row ever leaves `europe-west1`. `SURVIVE REGION FAILURE` keeps th
 entire case available through a full regional cloud outage — the guarantee that
 neither a single-region Postgres nor a bolt-on vector store can make.
 
-Reproduce for free (no cloud account — `cockroach demo` with simulated regions):
+**Survives a full region outage — proven, 0 holds lost.** `sql/geo_failover.sql`
+places six litigation holds domiciled across the three regions, then takes the
+**entire `europe-west1` region offline** (both EU nodes shut down) and re-queries:
 
 ```
+holds_BEFORE_outage   6
+-- take europe-west1 offline --
+  node 5 has been shutdown
+  node 6 has been shutdown
+holds_AFTER_outage    6      <- 0 lost
+ crdb_region   holds
+ europe-west1    2           (EU rows still readable from replicas in surviving regions)
+ us-east1        3
+ us-west1        1
+```
+
+The EU region is down, yet all six holds — including the two GDPR-pinned EU rows —
+remain readable, served from replicas in the surviving regions. A single-region
+Postgres or a bolt-on vector store loses the EU case file here; CockroachDB does
+not. Full transcript: `docs/multiregion_failover.txt`.
+
+Reproduce for free (no cloud account, no billing — `cockroach demo` simulates the regions):
+
+```
+# data domiciling (3 regions):
 cockroach demo --nodes 3 --no-example-database --insecure \
-  --demo-locality=region=us-east1:region=us-west1:region=europe-west1 \
-  < sql/geo_partition.sql
+  --demo-locality=region=us-east1:region=us-west1:region=europe-west1 < sql/geo_partition.sql
+# region-failure survival (6 nodes; takes the EU region down):
+cockroach demo --nodes 6 --no-example-database --insecure \
+  --demo-locality=region=us-east1:region=us-east1:region=us-west1:region=us-west1:region=europe-west1:region=europe-west1 \
+  < sql/geo_failover.sql
 ```
 
-*(Honesty: demonstrated on a local simulated-locality cluster; the same DDL runs
-unchanged on a CockroachDB Cloud multi-region deployment.)*
+*(Honesty: this is a **local, in-memory simulated-locality** cluster — not a paid
+cloud deployment. The same DDL runs unchanged on a CockroachDB Cloud multi-region
+cluster; only `--demo-locality` is swapped for real cloud regions.)*
 
 ## Vector + graph fusion retrieval (one SQL statement)
 

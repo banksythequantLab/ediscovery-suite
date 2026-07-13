@@ -1,0 +1,52 @@
+Multi-region REGION-FAILURE survival  --  LOCAL SIMULATION (cockroach demo, in-memory)
+Run: cockroach.exe demo --nodes 6 --no-example-database --insecure \
+      --demo-locality=region=us-east1:region=us-east1:region=us-west1:region=us-west1:region=europe-west1:region=europe-west1 \
+      < sql/geo_failover.sql
+Result: the entire europe-west1 region is taken offline (nodes 5 & 6); all 6
+legal holds -- including the 2 GDPR-pinned EU rows -- stay readable. 0 lost.
+Honest label: simulated-locality cluster, NOT a paid cloud deployment; the same
+DDL runs unchanged on a CockroachDB Cloud multi-region cluster.
+==============================================================================
+
+step
+===== 1. Cluster topology: three simulated regions =====
+region	zones	database_names	primary_region_of	secondary_region_of
+europe-west1	{}	{}	{}	{}
+us-east1	{}	{}	{}	{}
+us-west1	{}	{}	{}	{}
+step
+===== 2. A database that SURVIVES a full region outage =====
+CREATE DATABASE
+SET
+step
+===== 3. Legal holds, domiciled to each custodian jurisdiction (REGIONAL BY ROW) =====
+CREATE TABLE
+INSERT 0 6
+step
+===== data domiciling: EU custodian rows are pinned to europe-west1 (GDPR) =====
+crdb_region	holds	custodians
+europe-west1	2	Enron Europe - Trader A, Enron Europe - Trader B
+us-east1	3	Kenneth Lay, Jeffrey Skilling, Andrew Fastow
+us-west1	1	Enron West - Power Analyst
+holds_before_outage
+6
+step
+===== 4. SIMULATE A REGION OUTAGE: take the entire europe-west1 region offline =====
+node is draining... remaining: 15
+node is draining... remaining: 0 (complete)
+node 5 has been shutdown
+node is draining... remaining: 15
+node is draining... remaining: 0 (complete)
+node 6 has been shutdown
+pg_sleep
+t
+step
+===== 5. AFTER the EU region is DOWN: the case file still serves =====
+holds_after_outage
+6
+crdb_region	holds
+europe-west1	2
+us-east1	3
+us-west1	1
+step
+===== SURVIVE REGION FAILURE: EU rows still readable from surviving regions -- 0 holds lost =====
