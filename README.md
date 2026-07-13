@@ -105,9 +105,22 @@ gaphunter.*   artifacts, refs, gaps                            (the missing-doc 
 - **Demo + narrated walkthrough:** see the Cold Case repo for the deployed URL
   and the sub-3-minute video.
 
+## Entity resolution (the join key)
+
+The unified case file joins agents on a **resolved identity**, not a raw name.
+The corpus fragments each principal across many records — Andrew Fastow has 7,
+with a decoy (**Lea** Fastow, `lfastow@`) that must *not* resolve to him — and
+homonyms abound (Jeffrey vs Mark vs Ken Skilling; Richard vs Annette vs Ginger
+Causey; Sherron vs 10 other Watkinses). `identity.entities` + `identity.aliases`
+(built by `src/build_identity.py`) map each principal's name variants **and**
+its specific `person_id`s to one canonical entity. The live dashboard shows the
+resolution ("unified 9 person records & 13 aliases into one identity") and Cold
+Case then matches on the resolved `person_id`s, not a brittle name string.
+
 ## Run the entwinement proof
 
 ```
+py -3.11 src/build_identity.py     # resolve principal identities (aliases + person_ids)
 py -3.11 src/entwine.py            # unified case file for Skilling + Fastow
 py -3.11 src/entwine.py Lay Causey # any principals you like
 py -3.11 src/make_architecture.py  # regenerate docs/architecture.png
