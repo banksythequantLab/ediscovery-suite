@@ -4,6 +4,8 @@
 
 > **Metadata is not documentation. It is evidence.**
 
+![Nota.Lawyer — five agents, one CockroachDB memory, one unified case file](docs/hero.png)
+
 Five specialized legal agents share **one CockroachDB database**. They don't
 just coexist — they read and write the *same* corpus, the *same* people, and
 the *same* case memory, and they hand findings to one another. That shared,
